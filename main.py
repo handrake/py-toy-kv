@@ -25,6 +25,7 @@ def worker():
         now = time.time()
         if command.key in expire_dict and command.key in dict and expire_dict[command.key] < now:
             del dict[command.key]
+            del expire_dict[command.key]
             deleted = True
 
         if command.action == 'SET' and not deleted:

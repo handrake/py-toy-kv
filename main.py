@@ -35,7 +35,7 @@ class ExpireCommandRequest(BaseModel):
     expire: int
 
 
-def worker():
+def command_handler():
     expire_store = {}
     store = {}
 
@@ -65,9 +65,23 @@ def worker():
             expire_store[command.key] = now + int(command.value)
             response = CommandResponse(action='EXPIRE', key=command.key, value=command.value)
             command.return_q.put(response)
+        elif command.action == 'SWEEP':
+            for k in list(expire_store):
+                v = expire_store[k]
+                if v < now:
+                    del store[k]
+                    del expire_store[k]
 
 
-threading.Thread(target=worker, daemon=True).start()
+def sweep_worker():
+    while True:
+        time.sleep(1)
+        sweep_command = Command(action='SWEEP', key="")
+        command_q.put(sweep_command)
+
+
+threading.Thread(target=command_handler, daemon=True).start()
+threading.Thread(target=sweep_worker, daemon=True).start()
 
 app = FastAPI()
 

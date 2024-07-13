@@ -44,6 +44,7 @@ def worker():
 
         deleted = False
         now = time.time()
+
         if command.key in expire_store and command.key in store and expire_store[command.key] < now:
             del store[command.key]
             del expire_store[command.key]
@@ -61,7 +62,7 @@ def worker():
                 response = CommandResponse(action='GET', key=command.key, value=None)
                 command.return_q.put(response)
         elif command.action == 'EXPIRE' and not deleted:
-            expire_store[command.key] = int(command.value)
+            expire_store[command.key] = now + int(command.value)
             response = CommandResponse(action='EXPIRE', key=command.key, value=command.value)
             command.return_q.put(response)
 

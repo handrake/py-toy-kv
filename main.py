@@ -96,7 +96,7 @@ async def get_value(key: str):
 
     response = return_q.get(timeout=3)
 
-    return response.value
+    return response
 
 
 @app.post("/")
